@@ -1,6 +1,26 @@
 {
   "items": [
     {
+      "date": "2026-09-10",
+      "title": "Segestria v5.0",
+      "body": "Quiénes están conectados, con sus cabecitas. Galería de skins y capa en el visor 3D. Copiar la IP, tiempo jugado, lector del log y copias de tus mundos. Sonido al apretar Jugar, y el fondo del menú del juego ahora es más tranquilo y acompaña la hora del día."
+    },
+    {
+      "date": "2026-09-10",
+      "title": "Segestria v4.0",
+      "body": "Vista previa de skin en 3D (se puede girar con el mouse), temas de color a elección (Veneno, Obsidiana y Seda), selector de fuente y sección para reportar bugs."
+    },
+    {
+      "date": "2026-09-10",
+      "title": "Segestria v3.0",
+      "body": "Pulido de diseño: la ventana ya no salta de tamaño al cambiar de pestaña, el interruptor de \"jugar sin servidor\" es más claro, la sección Servidor quedó junto a su tarjeta de estado, se sacó un hover que no quedaba bien y el banner tiene una forma más marcada."
+    },
+    {
+      "date": "2026-09-10",
+      "title": "Segestria v2.0",
+      "body": "Rediseño completo: interfaz por categorías (Jugar, Skin, Packs, Mods, Ajustes), paleta de colores nueva, skin personalizada con vista previa de cara, shaders con Oculus, texture packs de un clic, lista de mods y control manual de RAM."
+    },
+    {
       "date": "2026-08-26",
       "title": "Segestria despierta",
       "body": "Primera versión del launcher: Minecraft 1.20.1 + Forge, auto-conexión al server y actualización de mods automática. El login con Discord llega después."

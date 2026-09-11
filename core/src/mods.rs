@@ -39,6 +39,39 @@ impl ModsManifest {
     }
 }
 
+/// Nombre "lindo" para mostrar en la UI a partir del nombre de archivo del
+/// jar (p. ej. "fps_overlay-4.2.jar" -> "FPS Overlay 4.2"): no hay metadata
+/// real de mod name/version acá, así que se infiere del filename nomás.
+pub fn display_name(filename: &str) -> String {
+    let stem = filename.strip_suffix(".jar").unwrap_or(filename);
+    stem.replace(['_', '-'], " ")
+        .split_whitespace()
+        .map(|word| {
+            if word.len() <= 3 && word.chars().all(|c| c.is_alphabetic()) {
+                word.to_uppercase()
+            } else {
+                let mut chars = word.chars();
+                match chars.next() {
+                    Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+                    None => String::new(),
+                }
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+#[cfg(test)]
+mod display_name_tests {
+    use super::display_name;
+
+    #[test]
+    fn formats_filename_into_display_name() {
+        assert_eq!(display_name("fps_overlay-4.2.jar"), "FPS Overlay 4.2");
+        assert_eq!(display_name("jei-1.20.1.jar"), "JEI 1.20.1");
+    }
+}
+
 /// Descarga los mods que falten y borra de `mods/` los jars que ya no estén
 /// en el manifest, para que la carpeta siempre refleje exactamente lo que
 /// dice el manifest (así es como "se actualiza fácil": se edita el manifest

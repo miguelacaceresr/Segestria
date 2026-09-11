@@ -14,6 +14,14 @@ hex = "0.4"
 md-5 = "0.10"
 uuid = { version = "1", features = ["v3"] }
 zip = { version = "2", default-features = false, features = ["deflate"] }
+# Solo PNG: lo único que decodificamos/codificamos son los panoramas del tema
+# (ver theme::grade_png). Sin default-features para no arrastrar jpeg, gif,
+# webp y compañía adentro del instalador.
+image = { version = "0.25", default-features = false, features = ["png"] }
 dirs = "5"
 thiserror = "1"
 sysinfo = "0.32"
+base64 = "0.22"
+
+[dev-dependencies]
+tempfile = "3"

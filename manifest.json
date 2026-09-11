@@ -1,5 +1,21 @@
 {
   "mc_version": "1.20.1",
   "loader": "forge",
-  "mods": []
+  "mods": [
+    {
+      "filename": "fps_overlay-4.2.jar",
+      "url": "https://cdn.modrinth.com/data/j0IQ4hjv/versions/7wHkOy2F/fps_overlay-4.2.jar",
+      "sha1": "9d2a9f1d10fe4861b554c66fb12d0bd958f93482"
+    },
+    {
+      "filename": "embeddium-0.3.31+mc1.20.1.jar",
+      "url": "https://cdn.modrinth.com/data/sk9rgfiA/versions/UTbfe5d1/embeddium-0.3.31%2Bmc1.20.1.jar",
+      "sha1": "bb2fa8f3e493af16af9160d049f96c614a1faf2f"
+    },
+    {
+      "filename": "oculus-mc1.20.1-1.8.0.jar",
+      "url": "https://cdn.modrinth.com/data/GchcoXML/versions/iQ1SwGc3/oculus-mc1.20.1-1.8.0.jar",
+      "sha1": "984f774e71790deaec674c7587bd24e0711871b2"
+    }
+  ]
 }

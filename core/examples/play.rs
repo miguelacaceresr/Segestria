@@ -29,7 +29,9 @@ async fn main() {
 
     let manifest = ModsManifest::empty(segestria_core::MC_VERSION, "forge");
 
-    match segestria_core::play(&settings, &manifest, sink).await {
+    let panorama = segestria_core::theme::Panorama::Dia;
+
+    match segestria_core::play(&settings, &manifest, panorama, sink).await {
         Ok(()) => println!("OK: Minecraft debería estar abriendo."),
         Err(e) => {
             eprintln!("ERROR: {e}");

@@ -57,6 +57,13 @@ fn classpath_string(paths: &[PathBuf]) -> String {
         .join(sep)
 }
 
+/// Nombre del placeholder de auto-conexión tal cual lo escribe Mojang en el
+/// version.json: `${quickPlayMultiplayer}`, en camelCase, a diferencia de
+/// todos los demás (`${auth_player_name}`, `${game_directory}`, ...) que van
+/// en snake_case. El nombre del *feature* que lo habilita sí es snake_case
+/// (`is_quick_play_multiplayer`), lo que hace fácil escribir mal este.
+const QUICK_PLAY_MULTIPLAYER: &str = "quickPlayMultiplayer";
+
 fn substitute(template: &str, values: &HashMap<&str, String>) -> String {
     let mut out = template.to_string();
     for (key, value) in values {
@@ -99,7 +106,7 @@ fn build_placeholder_values<'a>(
 
     if connect_to_server {
         values.insert(
-            "quick_play_multiplayer",
+            QUICK_PLAY_MULTIPLAYER,
             format!("{}:{}", settings.server_ip.trim(), settings.server_port),
         );
     }
@@ -150,6 +157,15 @@ pub fn build_command(
 pub fn spawn_detached(mut cmd: tokio::process::Command) -> Result<tokio::process::Child> {
     use std::process::Stdio;
 
+    // java.exe es un binario de subsistema "consola": aunque redirijamos
+    // stdin/stdout/stderr, Windows igual le abre una ventana de consola
+    // vacía a menos que se lo pidamos explícitamente que no lo haga.
+    #[cfg(windows)]
+    {
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
     let log_path = latest_log_path();
     if let Some(parent) = log_path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -165,4 +181,99 @@ pub fn spawn_detached(mut cmd: tokio::process::Command) -> Result<tokio::process
 
 pub fn latest_log_path() -> PathBuf {
     paths::instance_dir().join("logs").join("segestria-latest.log")
+}
+
+/// Últimos `max_bytes` del log de la partida anterior, para poder mirar un
+/// crash desde el launcher sin ir a buscar el archivo. Se lee la cola y no el
+/// archivo entero porque un modpack escupe megabytes de log y el stacktrace
+/// que interesa siempre está al final.
+pub fn read_latest_log_tail(max_bytes: usize) -> Option<String> {
+    read_log_tail(&latest_log_path(), max_bytes)
+}
+
+fn read_log_tail(path: &Path, max_bytes: usize) -> Option<String> {
+    use std::io::{Read, Seek, SeekFrom};
+
+    let mut file = std::fs::File::open(path).ok()?;
+    let size = file.metadata().ok()?.len();
+    let start = size.saturating_sub(max_bytes as u64);
+    file.seek(SeekFrom::Start(start)).ok()?;
+
+    let mut bytes = Vec::new();
+    file.read_to_end(&mut bytes).ok()?;
+
+    // El corte cae en cualquier byte, así que puede partir un carácter UTF-8
+    // (y un log de Java trae acentos): from_utf8_lossy en vez de fallar.
+    let text = String::from_utf8_lossy(&bytes).into_owned();
+    let text = if start > 0 {
+        // Arrancar a mitad de renglón se lee como basura; empezamos en el
+        // primer salto de línea completo.
+        match text.find('\n') {
+            Some(index) => text[index + 1..].to_string(),
+            None => text,
+        }
+    } else {
+        text
+    };
+
+    Some(text)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Regresión: la clave era `quick_play_multiplayer` (snake_case) mientras
+    /// que el version.json trae `${quickPlayMultiplayer}`. Como no coincidían,
+    /// la sustitución no pasaba nunca y Minecraft arrancaba intentando
+    /// conectarse a un server llamado, literalmente,
+    /// "${quickPlayMultiplayer}" — la auto-conexión al server no funcionaba.
+    #[test]
+    fn substitutes_the_quick_play_server() {
+        let mut values = HashMap::new();
+        values.insert(QUICK_PLAY_MULTIPLAYER, "mc.slav.gg:25565".to_string());
+
+        assert_eq!(
+            substitute("${quickPlayMultiplayer}", &values),
+            "mc.slav.gg:25565"
+        );
+    }
+
+    #[test]
+    fn substitutes_every_placeholder_in_an_argument() {
+        let mut values = HashMap::new();
+        values.insert("auth_player_name", "gato".to_string());
+        values.insert("version_name", "1.20.1-forge".to_string());
+
+        assert_eq!(
+            substitute("--user=${auth_player_name}@${version_name}", &values),
+            "--user=gato@1.20.1-forge"
+        );
+    }
+
+    #[test]
+    fn reads_the_whole_log_when_it_is_short() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("log.txt");
+        std::fs::write(&path, "primera\nsegunda\n").unwrap();
+
+        assert_eq!(read_log_tail(&path, 1024).unwrap(), "primera\nsegunda\n");
+    }
+
+    /// El corte cae en cualquier byte: si arrancara ahí, el primer renglón
+    /// aparecería partido a la mitad.
+    #[test]
+    fn skips_the_half_line_at_the_cut() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("log.txt");
+        std::fs::write(&path, "primera\nsegunda\ntercera\n").unwrap();
+
+        assert_eq!(read_log_tail(&path, 14).unwrap(), "tercera\n");
+    }
+
+    #[test]
+    fn reports_nothing_when_there_is_no_log_yet() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(read_log_tail(&dir.path().join("no-existe.log"), 1024).is_none());
+    }
 }

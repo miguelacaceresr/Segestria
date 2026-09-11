@@ -21,6 +21,15 @@ pub struct Settings {
     /// Aikar's flags que ya mete el launcher (ver `launch::AIKAR_FLAGS`).
     #[serde(default)]
     pub extra_jvm_args: String,
+    /// Comprimir `saves/` antes de cada partida (ver `backup`). Apagado por
+    /// default: para quien solo juega en el server no hay nada que copiar, y
+    /// un mundo grande tarda.
+    #[serde(default)]
+    pub backup_worlds: bool,
+    /// Variante de color del panorama del menú del juego: "dia", "atardecer",
+    /// "noche", o None/"auto" para que siga la hora (ver `theme::Panorama`).
+    #[serde(default)]
+    pub panorama: Option<String>,
 }
 
 impl Default for Settings {
@@ -31,6 +40,8 @@ impl Default for Settings {
             server_port: 25565,
             allocated_ram_mb: None,
             extra_jvm_args: String::new(),
+            backup_worlds: false,
+            panorama: None,
         }
     }
 }

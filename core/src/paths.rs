@@ -42,6 +42,20 @@ pub fn settings_file() -> PathBuf {
     data_dir().join("settings.json")
 }
 
+pub fn stats_file() -> PathBuf {
+    data_dir().join("stats.json")
+}
+
+/// Copias de los mundos, fuera de la instancia a propósito: si algún día hay
+/// que borrar y rehacer la instancia, los backups no se van con ella.
+pub fn backups_dir() -> PathBuf {
+    data_dir().join("backups")
+}
+
+pub fn saves_dir() -> PathBuf {
+    instance_dir().join("saves")
+}
+
 pub fn version_dir(version_id: &str) -> PathBuf {
     versions_dir().join(version_id)
 }

@@ -19,6 +19,16 @@ pub struct ServerStatus {
     /// Ícono del server como data URI (`data:image/png;base64,...`), tal cual
     /// lo manda el protocolo de status — listo para usarse directo en un `<img src>`.
     pub favicon: Option<String>,
+    /// Muestra de jugadores conectados. Vanilla manda hasta 12 elegidos al
+    /// azar (y varios servers la desactivan del todo), así que esto es "algunos
+    /// de los que están", nunca la lista completa.
+    pub players: Vec<PlayerSample>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct PlayerSample {
+    pub name: String,
+    pub uuid: String,
 }
 
 impl ServerStatus {
@@ -29,6 +39,7 @@ impl ServerStatus {
             players_max: None,
             motd: None,
             favicon: None,
+            players: Vec::new(),
         }
     }
 }
@@ -46,6 +57,63 @@ struct StatusResponse {
 struct PlayersInfo {
     max: u32,
     online: u32,
+    #[serde(default)]
+    sample: Vec<RawPlayerSample>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RawPlayerSample {
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    id: String,
+}
+
+/// Cuántas cabecitas mostramos como mucho: más que esto no entra en la
+/// tarjeta y vanilla tampoco manda más.
+const MAX_SAMPLE: usize = 12;
+
+/// El sample lo escribe el server, no nosotros: el UUID termina metido en una
+/// URL (`mc-heads.net/avatar/<uuid>`), así que solo dejamos pasar los que
+/// tienen forma de UUID de verdad. Un server hostil podría mandar algo como
+/// `../../otra/cosa` y torcer el pedido a otro lado.
+fn clean_sample(raw: Vec<RawPlayerSample>) -> Vec<PlayerSample> {
+    raw.into_iter()
+        .filter(|p| is_uuid(&p.id))
+        .map(|p| PlayerSample {
+            name: strip_color_codes(&p.name),
+            uuid: p.id,
+        })
+        .filter(|p| !p.name.is_empty())
+        .take(MAX_SAMPLE)
+        .collect()
+}
+
+fn is_uuid(value: &str) -> bool {
+    value.len() == 36
+        && value
+            .chars()
+            .enumerate()
+            .all(|(i, c)| match i {
+                8 | 13 | 18 | 23 => c == '-',
+                _ => c.is_ascii_hexdigit(),
+            })
+}
+
+/// Saca los códigos de color legacy (`§a`, `§l`, ...) que los servers meten
+/// en el MOTD y en los nombres del sample: sin esto la tarjeta muestra
+/// "§aSlav§bMC" en vez del texto.
+fn strip_color_codes(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars();
+    while let Some(c) = chars.next() {
+        if c == '§' {
+            chars.next();
+        } else {
+            out.push(c);
+        }
+    }
+    out.trim().to_string()
 }
 
 #[derive(Debug, Deserialize)]
@@ -65,7 +133,7 @@ struct DescriptionComponent {
 
 impl Description {
     fn to_plain_text(&self) -> String {
-        match self {
+        let raw = match self {
             Description::Text(s) => s.clone(),
             Description::Component(c) => {
                 let mut out = c.text.clone();
@@ -76,7 +144,8 @@ impl Description {
                 }
                 out
             }
-        }
+        };
+        strip_color_codes(&raw)
     }
 }
 
@@ -116,7 +185,11 @@ async fn try_ping(host: &str, port: u16) -> Result<ServerStatus> {
         players_online: Some(parsed.players.online),
         players_max: Some(parsed.players.max),
         motd: parsed.description.map(|d| d.to_plain_text()),
-        favicon: parsed.favicon,
+        // El favicon va derecho a un `<img src>`: aceptamos solo la forma que
+        // define el protocolo (PNG en base64) y no cualquier URL que al server
+        // se le ocurra mandar.
+        favicon: parsed.favicon.filter(|f| f.starts_with("data:image/png;base64,")),
+        players: clean_sample(parsed.players.sample),
     })
 }
 
@@ -211,4 +284,50 @@ fn read_string_from_bytes(buf: &[u8], pos: &mut usize) -> Result<String> {
         .to_string();
     *pos = end;
     Ok(s)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample(name: &str, id: &str) -> RawPlayerSample {
+        RawPlayerSample {
+            name: name.to_string(),
+            id: id.to_string(),
+        }
+    }
+
+    const REAL_UUID: &str = "069a79f4-44e9-4726-a5be-fca90e38aaf5";
+
+    #[test]
+    fn keeps_players_with_a_real_uuid() {
+        let cleaned = clean_sample(vec![sample("§aNotch", REAL_UUID)]);
+        assert_eq!(cleaned.len(), 1);
+        assert_eq!(cleaned[0].name, "Notch");
+        assert_eq!(cleaned[0].uuid, REAL_UUID);
+    }
+
+    /// El UUID termina dentro de una URL, así que un server que manda
+    /// cualquier cosa no puede torcer el pedido a otro lado.
+    #[test]
+    fn drops_players_whose_uuid_is_not_a_uuid() {
+        let evil = vec![
+            sample("a", "../../otra/cosa"),
+            sample("b", ""),
+            sample("c", "069a79f4-44e9-4726-a5be-fca90e38aaf5/x"),
+            sample("d", "zzzzzzzz-44e9-4726-a5be-fca90e38aaf5"),
+        ];
+        assert!(clean_sample(evil).is_empty());
+    }
+
+    #[test]
+    fn drops_players_with_an_empty_name() {
+        assert!(clean_sample(vec![sample("§a§b", REAL_UUID)]).is_empty());
+    }
+
+    #[test]
+    fn strips_color_codes_from_the_motd() {
+        let motd = Description::Text("§aSlav§bMC §lserver".to_string());
+        assert_eq!(motd.to_plain_text(), "SlavMC server");
+    }
 }

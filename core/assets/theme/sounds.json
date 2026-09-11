@@ -1,0 +1,11 @@
+{
+  "music.menu": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "minecraft:music/menu_theme",
+        "stream": true
+      }
+    ]
+  }
+}

@@ -5,77 +5,345 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Oxanium:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Segestria Launcher</title>
+    <script src="vendor/skinview3d.bundle.js"></script>
     <script type="module" src="/main.js" defer></script>
   </head>
 
   <body>
-    <main class="container">
-      <header class="app-header">
+    <div id="splash" class="splash">
+      <div class="splash-card">
+        <div class="splash-row">
+          <div class="cube-stage" aria-hidden="true">
+            <svg class="cube-layer cube-layer--a" viewBox="0 0 100 116">
+              <polygon points="50,0 100,29 50,58 0,29" />
+              <polygon points="0,29 50,58 50,116 0,87" />
+              <polygon points="100,29 50,58 50,116 100,87" />
+            </svg>
+            <svg class="cube-layer cube-layer--b" viewBox="0 0 100 116">
+              <polygon points="50,0 100,29 50,58 0,29" />
+              <polygon points="0,29 50,58 50,116 0,87" />
+              <polygon points="100,29 50,58 50,116 100,87" />
+            </svg>
+            <svg class="cube-layer cube-layer--c" viewBox="0 0 100 116">
+              <polygon points="50,0 100,29 50,58 0,29" />
+              <polygon points="0,29 50,58 50,116 0,87" />
+              <polygon points="100,29 50,58 50,116 100,87" />
+            </svg>
+          </div>
+          <div class="splash-word splash-word--studio">Isometrical Game Company</div>
+        </div>
+      </div>
+      <div class="splash-card">
+        <img class="splash-wordmark" src="assets/segestria-wordmark.png" alt="Segestria" />
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-content">
         <span class="eyebrow">MC 1.20.1 · Forge</span>
-        <h1>Segestria</h1>
-      </header>
+        <h1 class="hero-wordmark-wrap">
+          <img class="hero-wordmark" src="assets/segestria-wordmark.png" alt="Segestria" />
+        </h1>
+        <span class="hero-divider"></span>
+        <p class="hero-tagline">Isometrical Game Company</p>
+      </div>
+    </header>
 
-      <section id="server-status" class="server-row">
-        <div class="server-row-art">
-          <img id="server-icon" class="server-icon-img hidden" alt="" />
-          <span id="server-icon-fallback" class="server-icon-fallback">?</span>
-        </div>
-        <div class="server-row-info">
-          <span id="server-status-title" class="server-row-title">Sin servidor</span>
-          <span id="server-status-text" class="server-row-subtitle">Configurá la IP del server</span>
-        </div>
-        <span id="server-status-dot" class="status-dot status-dot--unknown"></span>
-      </section>
+    <main class="container">
+      <nav class="tabs" role="tablist">
+        <button type="button" class="tab-button is-active" data-tab="play">Inicio</button>
+        <button type="button" class="tab-button" data-tab="skin">Skin</button>
+        <button type="button" class="tab-button" data-tab="packs">Packs</button>
+        <button type="button" class="tab-button" data-tab="mods">Mods</button>
+        <button type="button" class="tab-button" data-tab="settings">Ajustes</button>
+      </nav>
 
-      <section id="news" class="news hidden">
-        <div class="news-header">Novedades</div>
-        <div id="news-body" class="news-body"></div>
-      </section>
+      <div class="tab-panel is-active" data-tab-panel="play">
+        <section id="server-status" class="server-card">
+          <div class="server-row">
+            <div class="server-row-art">
+              <img id="server-icon" class="server-icon-img hidden" alt="" />
+              <span id="server-icon-fallback" class="server-icon-fallback">?</span>
+            </div>
+            <div class="server-row-info">
+              <span id="server-status-title" class="server-row-title">Sin servidor</span>
+              <span id="server-status-text" class="server-row-subtitle">Configurá la IP del server</span>
+            </div>
+            <span id="server-status-dot" class="status-dot status-dot--unknown"></span>
+          </div>
+          <div id="server-players" class="server-players hidden"></div>
+        </section>
 
-      <form id="settings-form" class="settings">
-        <label class="input-group">
-          <span class="field-label">Usuario</span>
-          <span class="input-shell">
-            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.4" />
-              <path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6" />
-            </svg>
-            <input id="username" placeholder="Tu nombre en el server" required />
-          </span>
-        </label>
-
-        <label class="input-group">
-          <span class="field-label">Servidor</span>
-          <span class="input-shell">
-            <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="4" y="5" width="16" height="6" rx="2" />
-              <rect x="4" y="13" width="16" height="6" rx="2" />
-              <circle cx="8" cy="8" r="0.6" fill="currentColor" stroke="none" />
-              <circle cx="8" cy="16" r="0.6" fill="currentColor" stroke="none" />
-            </svg>
-            <input id="server" placeholder="ip.del.server:25565" />
-          </span>
-        </label>
-
-        <label class="checkbox-row">
-          <input type="checkbox" id="no-server-toggle" />
-          <span>Jugar sin servidor</span>
-        </label>
-
-        <details class="advanced">
-          <summary>Avanzado</summary>
-          <label>
-            Flags de JVM extra
-            <input id="extra-jvm" placeholder="-Dfoo=bar -Dbaz=qux" />
+        <div class="settings">
+          <label class="input-group">
+            <span class="field-label">Servidor</span>
+            <span class="input-shell">
+              <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="6" rx="2" />
+                <rect x="4" y="13" width="16" height="6" rx="2" />
+                <circle cx="8" cy="8" r="0.6" fill="currentColor" stroke="none" />
+                <circle cx="8" cy="16" r="0.6" fill="currentColor" stroke="none" />
+              </svg>
+              <input id="server" placeholder="ip.del.server:25565" />
+              <button id="copy-ip-button" type="button" class="input-action" title="Copiar la IP">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+                <span class="sr-only">Copiar la IP</span>
+              </button>
+            </span>
           </label>
-        </details>
-      </form>
+
+          <label class="switch-row">
+            <span class="switch-row-label">Jugar sin servidor</span>
+            <span class="switch">
+              <input type="checkbox" id="no-server-toggle" class="switch-input" />
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+            </span>
+          </label>
+
+          <label class="input-group">
+            <span class="field-label">Usuario</span>
+            <span class="input-shell">
+              <img id="skin-avatar" class="input-avatar" alt="" />
+              <input id="username" placeholder="Tu nombre en el server" required />
+            </span>
+          </label>
+        </div>
+
+        <section id="news" class="news hidden">
+          <div class="news-header">Novedades</div>
+          <div id="news-track" class="news-track"></div>
+          <div id="news-dots" class="news-dots"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="skin">
+        <section id="skin-panel" class="news">
+          <div class="news-header">Skin personalizada</div>
+          <div class="skin-panel-body">
+            <div class="skin-preview-box">
+              <canvas id="skin-viewer-canvas" class="skin-viewer-canvas"></canvas>
+            </div>
+            <div class="skin-panel-actions">
+              <div class="skin-panel-buttons">
+                <button id="skin-pick-button" type="button" class="skin-action-button">Elegir PNG</button>
+                <button id="cape-pick-button" type="button" class="skin-action-button skin-action-button--ghost">
+                  Capa
+                </button>
+                <button id="cape-clear-button" type="button" class="skin-action-button skin-action-button--ghost hidden">
+                  Sin capa
+                </button>
+                <button
+                  id="skin-clear-button"
+                  type="button"
+                  class="skin-action-button skin-action-button--ghost hidden"
+                >
+                  Quitar
+                </button>
+              </div>
+              <p class="skin-panel-hint">
+                Arrastrá para rotar. PNG de 64x64 — solo se ve en tu propio juego, no en el de los demás.
+                La capa es 64x32 y se ve solo acá (Minecraft no deja darse una capa desde un pack).
+              </p>
+            </div>
+          </div>
+          <div id="skin-gallery" class="skin-gallery hidden"></div>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="packs">
+        <section id="texture-packs-panel" class="news">
+          <div class="news-header">Texture packs</div>
+          <ul id="texture-packs-list" class="pack-list"></ul>
+          <button id="texture-pack-add-button" type="button" class="skin-action-button pack-add-button">
+            + Agregar .zip
+          </button>
+        </section>
+
+        <section id="shader-packs-panel" class="news">
+          <div class="news-header">Shaders</div>
+          <p class="skin-panel-hint">
+            Se instala el mod Oculus solo (junto con Embeddium), así los shaders andan sin configurar nada más.
+            Elegí un .zip y va a aparecer en las opciones de video del juego.
+          </p>
+          <ul id="shader-packs-list" class="pack-list"></ul>
+          <button id="shader-pack-add-button" type="button" class="skin-action-button pack-add-button">
+            + Agregar .zip
+          </button>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="mods">
+        <section id="mods-panel" class="news hidden">
+          <div class="news-header">Mods incluidos</div>
+          <ul id="mods-list" class="mods-list"></ul>
+        </section>
+      </div>
+
+      <div class="tab-panel" data-tab-panel="settings">
+        <section class="news">
+          <div class="news-header">Apariencia</div>
+          <div class="advanced">
+            <label>
+              Tema
+              <div id="theme-swatches" class="theme-swatches">
+                <button type="button" class="theme-swatch is-active" data-theme="veneno">
+                  <span class="theme-swatch-colors theme-swatch-colors--veneno"><i></i><i></i><i></i></span>
+                  <span class="theme-swatch-name">Veneno</span>
+                </button>
+                <button type="button" class="theme-swatch" data-theme="obsidiana">
+                  <span class="theme-swatch-colors theme-swatch-colors--obsidiana"><i></i><i></i><i></i></span>
+                  <span class="theme-swatch-name">Obsidiana</span>
+                </button>
+                <button type="button" class="theme-swatch" data-theme="seda">
+                  <span class="theme-swatch-colors theme-swatch-colors--seda"><i></i><i></i><i></i></span>
+                  <span class="theme-swatch-name">Seda</span>
+                </button>
+              </div>
+            </label>
+            <label>
+              Fuente
+              <select id="font-select" class="select-field">
+                <option value="manrope">Manrope</option>
+                <option value="inter">Inter</option>
+                <option value="grotesk">Space Grotesk</option>
+                <option value="oxanium">Oxanium</option>
+              </select>
+            </label>
+            <label>
+              <span class="ram-label-row">
+                <span>Fondo del menú del juego</span>
+                <span class="field-hint">Vira el color de la foto</span>
+              </span>
+              <select id="panorama-select" class="select-field">
+                <option value="auto">Automático (según la hora)</option>
+                <option value="dia">Día</option>
+                <option value="atardecer">Atardecer</option>
+                <option value="noche">Noche</option>
+              </select>
+            </label>
+            <label class="checkbox-row checkbox-row--tight">
+              <input type="checkbox" id="sound-toggle" checked />
+              <span>Sonido al apretar Jugar</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="news">
+          <div class="news-header">Tu partida</div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span id="stat-total" class="stat-value">0 h</span>
+              <span class="stat-label">Jugadas</span>
+            </div>
+            <div class="stat-box">
+              <span id="stat-sessions" class="stat-value">0</span>
+              <span class="stat-label">Partidas</span>
+            </div>
+            <div class="stat-box">
+              <span id="stat-last" class="stat-value">—</span>
+              <span id="stat-last-label" class="stat-label">Última sesión</span>
+            </div>
+          </div>
+          <p id="crash-note" class="crash-note hidden">
+            La última partida se cerró sola. El log puede decir por qué.
+          </p>
+          <div class="button-row">
+            <button id="view-log-button" type="button" class="skin-action-button skin-action-button--ghost">
+              Ver el log
+            </button>
+            <button
+              type="button"
+              class="skin-action-button skin-action-button--ghost"
+              data-open-folder="instancia"
+            >
+              Abrir carpeta del juego
+            </button>
+          </div>
+        </section>
+
+        <section class="news">
+          <div class="news-header">Copias de los mundos</div>
+          <label class="checkbox-row checkbox-row--tight">
+            <input type="checkbox" id="backup-toggle" />
+            <span>Copiar mis mundos antes de jugar</span>
+          </label>
+          <p class="skin-panel-hint">
+            Solo tus mundos de un jugador; lo del server vive en el server. Se guardan las últimas 5.
+          </p>
+          <ul id="backups-list" class="pack-list"></ul>
+          <div class="button-row">
+            <button id="backup-now-button" type="button" class="skin-action-button skin-action-button--ghost">
+              Copiar ahora
+            </button>
+            <button
+              type="button"
+              class="skin-action-button skin-action-button--ghost"
+              data-open-folder="backups"
+            >
+              Abrir carpeta
+            </button>
+          </div>
+        </section>
+
+        <section class="news">
+          <div class="news-header">Actualizaciones</div>
+          <div class="update-row">
+            <span id="app-version" class="update-version">Segestria</span>
+            <button id="check-update-button" type="button" class="skin-action-button skin-action-button--ghost">
+              Buscar
+            </button>
+          </div>
+          <p id="update-status" class="skin-panel-hint"></p>
+          <button id="update-download-button" type="button" class="skin-action-button hidden">
+            Descargar la nueva versión
+          </button>
+        </section>
+
+        <section class="news">
+          <div class="news-header">Rendimiento</div>
+          <div class="advanced">
+            <label class="checkbox-row checkbox-row--tight">
+              <input type="checkbox" id="ram-auto-toggle" checked />
+              <span>RAM automática (recomendado)</span>
+            </label>
+            <label>
+              <span class="ram-label-row">
+                <span>Memoria asignada</span>
+                <span id="ram-value">Automático</span>
+              </span>
+              <input type="range" id="ram-slider" min="1024" max="8192" step="256" />
+            </label>
+            <label>
+              Flags de JVM extra
+              <input id="extra-jvm" placeholder="-Dfoo=bar -Dbaz=qux" />
+            </label>
+          </div>
+        </section>
+
+        <section class="news">
+          <div class="news-header">Reportar un bug</div>
+          <div class="support-list">
+            <button type="button" class="support-item" data-url="mailto:miguelacaceresrios@gmail.com">
+              <span class="support-item-label">Email</span>
+              <span class="support-item-value">miguelacaceresrios@gmail.com</span>
+            </button>
+            <button type="button" class="support-item" data-url="https://discord.gg/Ak34E2PMhS">
+              <span class="support-item-label">Discord</span>
+              <span class="support-item-value">discord.gg/Ak34E2PMhS</span>
+            </button>
+          </div>
+        </section>
+      </div>
 
       <button id="play-button" type="button" class="play-button">Jugar</button>
 
@@ -88,5 +356,23 @@
 
       <p id="error-text" class="error-text hidden"></p>
     </main>
+
+    <div id="log-modal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-title">Log de la última partida</span>
+          <button id="log-close-button" type="button" class="modal-close" aria-label="Cerrar">×</button>
+        </div>
+        <pre id="log-content" class="log-content"></pre>
+        <div class="button-row">
+          <button id="log-copy-button" type="button" class="skin-action-button skin-action-button--ghost">
+            Copiar
+          </button>
+          <button type="button" class="skin-action-button skin-action-button--ghost" data-open-folder="logs">
+            Abrir carpeta
+          </button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

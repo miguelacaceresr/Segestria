@@ -6,7 +6,9 @@
 
 ## Stack Tecnológico
 
-Rust se encarga de toda la lógica pesada del launcher. Kotlin maneja la UI y la lógica específica de Android. En escritorio corre mediante Rust + Tauri en Windows, Linux y macOS. En móvil, Android con Kotlin + Jetpack Compose.
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=rust,tauri,kotlin,androidstudio&theme=dark" />
+</p>
 
 ---
 
